@@ -408,8 +408,50 @@ const fetchCodexQuota = async (
     throw new Error(t('codex_quota.missing_auth_index'));
   }
 
-  const planTypeFromFile = resolveCodexPlanType(file);
-  const accountId = resolveCodexChatgptAccountId(file);
+  let planTypeFromFile = resolveCodexPlanType(file);
+  console.log('[Codex quota] file keys:', Object.keys(file || {}));
+  console.log('[Codex quota] account_id:', file.account_id);
+  console.log('[Codex quota] accountId:', file.accountId);
+  console.log('[Codex quota] auth_index:', file['auth_index'], file.authIndex);
+  console.log(
+    '[Codex quota] raw file:',
+    JSON.stringify(
+      file,
+      (key, value) => {
+        if (['access_token', 'refresh_token', 'id_token'].includes(key)) {
+          return value ? '[redacted]' : value;
+        }
+        return value;
+      },
+      2
+    )
+  );
+
+  let accountId = resolveCodexChatgptAccountId(file);
+  console.log('[Codex quota] resolved accountId:', accountId);
+  if (!accountId) {
+    console.log('[Codex quota] list item missing account_id, downloading auth file:', file.name);
+    const authFile = await authFilesApi.downloadJsonObject(file.name);
+    console.log('[Codex quota] downloaded auth file keys:', Object.keys(authFile || {}));
+    console.log('[Codex quota] downloaded account_id:', authFile.account_id);
+    console.log('[Codex quota] downloaded accountId:', authFile.accountId);
+    console.log(
+      '[Codex quota] downloaded auth file:',
+      JSON.stringify(
+        authFile,
+        (key, value) => {
+          if (['access_token', 'refresh_token', 'id_token'].includes(key)) {
+            return value ? '[redacted]' : value;
+          }
+          return value;
+        },
+        2
+      )
+    );
+    accountId = resolveCodexChatgptAccountId(authFile as AuthFileItem);
+    planTypeFromFile = resolveCodexPlanType(authFile as AuthFileItem) ?? planTypeFromFile;
+    console.log('[Codex quota] resolved downloaded accountId:', accountId);
+  }
   if (!accountId) {
     throw new Error(t('codex_quota.missing_account_id'));
   }
