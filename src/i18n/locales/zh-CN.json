@@ -665,7 +665,7 @@
     "loading": "正在加载额度...",
     "load_failed": "额度获取失败：{{message}}",
     "missing_auth_index": "认证文件缺少 auth_index",
-    "missing_account_id": "Codex 凭证缺少 ChatGPT 账号 ID",
+    "missing_account_id": "Codex 凭证缺少 ChatGPT ID",
     "empty_windows": "暂无额度数据",
     "no_access": "该凭证已无 Codex 访问权限（free）。",
     "refresh_button": "刷新额度",
